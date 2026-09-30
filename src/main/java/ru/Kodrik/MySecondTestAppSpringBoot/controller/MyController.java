@@ -1,5 +1,6 @@
 package ru.Kodrik.MySecondTestAppSpringBoot.controller;
 
+
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +14,15 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.Kodrik.MySecondTestAppSpringBoot.exception.UnsupportedCodeException;
 import ru.Kodrik.MySecondTestAppSpringBoot.exception.ValidationFailedException;
 import ru.Kodrik.MySecondTestAppSpringBoot.model.*;
+import ru.Kodrik.MySecondTestAppSpringBoot.service.ModifyRequestService;
 import ru.Kodrik.MySecondTestAppSpringBoot.service.ModifyResponseService;
 import ru.Kodrik.MySecondTestAppSpringBoot.service.UnsupportedCodeService;
 import ru.Kodrik.MySecondTestAppSpringBoot.service.ValidationService;
 import ru.Kodrik.MySecondTestAppSpringBoot.util.DateTimeUtil;
 
+import java.time.LocalDateTime;
 import java.util.Date;
+
 @Slf4j
 @RestController
 public class MyController {
@@ -26,20 +30,37 @@ public class MyController {
     private final ValidationService validationService;
     private final UnsupportedCodeService unsupportedCodeService;
     private final ModifyResponseService modifyResponseService;
+    private final ModifyRequestService modifySystemNameRequestService;
+    private final ModifyRequestService modifySourceRequestService;
 
     @Autowired
     public MyController(ValidationService validationService,
                         UnsupportedCodeService unsupportedCodeService,
-                        @Qualifier("ModifySystemTimeResponseService")ModifyResponseService modifyResponseService) {
+                        @Qualifier("modifySystemTimeResponseService") ModifyResponseService modifyResponseService,
+                        @Qualifier("modifySystemNameRequestService") ModifyRequestService modifySystemNameRequestService,
+                        @Qualifier("modifySourceRequestService") ModifyRequestService modifySourceRequestService) {
         this.validationService = validationService;
         this.unsupportedCodeService = unsupportedCodeService;
         this.modifyResponseService = modifyResponseService;
+        this.modifySystemNameRequestService = modifySystemNameRequestService;
+        this.modifySourceRequestService = modifySourceRequestService;
     }
 
     @PostMapping(value = "/feedback")
-    public ResponseEntity<Response> feedback (@Valid @RequestBody Request request, BindingResult bindingResult) {
+    public ResponseEntity<Response> feedback(@Valid @RequestBody Request request, BindingResult bindingResult) {
 
         log.info("request: {}", request);
+
+        // === ДОПОЛНИТЕЛЬНЫЙ ФУНКЦИОНАЛ ===
+        // 1. Фиксируем время получения запроса Сервисом 1
+        request.setTimestamp(LocalDateTime.now());
+
+        // 2. Меняем поле source (локально, без отправки)
+        modifySourceRequestService.modify(request);
+
+        // 3. Меняем systemName и отправляем запрос в Сервис 2 (порт 8084)
+        modifySystemNameRequestService.modify(request);
+        // ===================================
 
         Response response = Response.builder()
                 .uid(request.getUid())
