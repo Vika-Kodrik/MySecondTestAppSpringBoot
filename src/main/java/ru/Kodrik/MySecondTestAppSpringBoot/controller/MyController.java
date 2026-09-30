@@ -1,5 +1,7 @@
 package ru.Kodrik.MySecondTestAppSpringBoot.controller;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +36,21 @@ public class MyController {
         this.validationService = validationService;
         this.unsupportedCodeService = unsupportedCodeService;
         this.modifyResponseService = modifyResponseService;
+
     }
 
     @PostMapping(value = "/feedback")
     public ResponseEntity<Response> feedback (@Valid @RequestBody Request request, BindingResult bindingResult) {
 
         log.info("request: {}", request);
+
+        LocalDateTime receivedTime = LocalDateTime.now();
+        if (request.getTimestamp() != null) {
+            long diffMillis = ChronoUnit.MILLIS.between(request.getTimestamp(), receivedTime);
+            log.info("Разница времени между получением запроса Сервисом 1 и Сервисом 2: {} мс", diffMillis);
+        } else {
+            log.warn("Поле timestamp отсутствует, невозможно вычислить разницу времени");
+        }
 
         Response response = Response.builder()
                 .uid(request.getUid())
@@ -93,6 +104,8 @@ public class MyController {
         log.info("Запуск модификации ответа");
         modifyResponseService.modify(response);
         log.info("Ответ после модификации: {}", response);
+
+
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
