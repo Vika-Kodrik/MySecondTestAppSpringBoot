@@ -13,15 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.Kodrik.MySecondTestAppSpringBoot.exception.UnsupportedCodeException;
 import ru.Kodrik.MySecondTestAppSpringBoot.exception.ValidationFailedException;
 import ru.Kodrik.MySecondTestAppSpringBoot.model.*;
-import ru.Kodrik.MySecondTestAppSpringBoot.service.ModifyRequestService;
 import ru.Kodrik.MySecondTestAppSpringBoot.service.ModifyResponseService;
 import ru.Kodrik.MySecondTestAppSpringBoot.service.UnsupportedCodeService;
 import ru.Kodrik.MySecondTestAppSpringBoot.service.ValidationService;
 import ru.Kodrik.MySecondTestAppSpringBoot.util.DateTimeUtil;
 
-import java.time.LocalDateTime;
 import java.util.Date;
-
 @Slf4j
 @RestController
 public class MyController {
@@ -29,32 +26,20 @@ public class MyController {
     private final ValidationService validationService;
     private final UnsupportedCodeService unsupportedCodeService;
     private final ModifyResponseService modifyResponseService;
-    private final ModifyRequestService modifySystemNameRequestService;
-    private final ModifyRequestService modifySourceRequestService;
 
     @Autowired
     public MyController(ValidationService validationService,
                         UnsupportedCodeService unsupportedCodeService,
-                        @Qualifier("modifySystemTimeResponseService")ModifyResponseService modifyResponseService,
-                        @Qualifier("modifySystemNameRequestService") ModifyRequestService modifySystemNameRequestService,
-                        @Qualifier("modifySourceRequestService") ModifyRequestService modifySourceRequestService) {
+                        @Qualifier("ModifySystemTimeResponseService")ModifyResponseService modifyResponseService) {
         this.validationService = validationService;
         this.unsupportedCodeService = unsupportedCodeService;
         this.modifyResponseService = modifyResponseService;
-        this.modifySystemNameRequestService = modifySystemNameRequestService;
-        this.modifySourceRequestService = modifySourceRequestService;;
     }
 
     @PostMapping(value = "/feedback")
     public ResponseEntity<Response> feedback (@Valid @RequestBody Request request, BindingResult bindingResult) {
 
         log.info("request: {}", request);
-
-        request.setTimestamp(LocalDateTime.now());
-
-        modifySourceRequestService.modify(request);
-
-        modifySystemNameRequestService.modify(request);
 
         Response response = Response.builder()
                 .uid(request.getUid())
