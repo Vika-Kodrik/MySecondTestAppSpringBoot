@@ -14,13 +14,8 @@ public enum Systems {
         this.name = name;
     }
 
-    @JsonValue
     public String getName() {
         return name;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
 }

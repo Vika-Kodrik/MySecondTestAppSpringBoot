@@ -1,5 +1,6 @@
 package ru.Kodrik.MySecondTestAppSpringBoot.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -17,28 +18,34 @@ import java.time.LocalDateTime;
 
 public class Request {
 
-    @NotBlank(message = "обязательное поле для заполнения")
+    @NotBlank(message = "UID не может быть пустым")
     private String uid;
 
-    @NotBlank(message = "обязательное поле для заполнения")
+    @NotBlank(message = "operationUid не может быть пустым")
     private String operationUid;
 
-
+    @NotBlank(message = "Имя системы отправителя. Обязательное поле для заполнения")
     private String systemName;
 
-    @NotBlank(message = "обязательное поле")
     private String systemTime;
 
     private String source;
+    private  Positions positions;
+    private Double salary;
+    private Double bonus;
+    private Integer workDays;
 
     @Min(value = 1, message = "communicationId должен быть не меньше 1")
     @Max(value = 1000000, message = "communicationId должен быть не больше 1000000")
-    private int communicationId;
+    private Integer communicationId;
 
-    private int templateId;
-    private int productCode;
-    private int smsCode;
+    private Integer templateId;
 
+    private Integer productCode;
+
+    private Integer smsCode;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime timestamp;
 
     @Override
